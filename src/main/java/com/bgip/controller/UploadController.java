@@ -1,7 +1,6 @@
 package com.bgip.controller;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,12 +10,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.bgip.exception.BgipException;
 import com.bgip.filter.AuthFilter;
 import com.bgip.model.upload.FolderResponse;
 import com.bgip.model.ResponseBean;
-import com.bgip.model.upload.UploadRequest;
 import com.bgip.service.UploadServices;
 import com.bgip.model.upload.FilesBean;
+import com.bgip.model.upload.FolderBean;
+import com.bgip.model.upload.FolderRequest;
+import javax.ws.rs.core.Response;
 
 @Path("/drive")
 @Produces(APPLICATION_JSON)
@@ -35,28 +37,49 @@ public class UploadController extends BaseController {
 	}
 	
 	
+//	@POST
+//	@Path("/upload")
+//	@Consumes(APPLICATION_JSON)
+//	public List<FolderResponse> upload(@HeaderParam("token") String token, UploadRequest uploadFolders) throws Exception {
+//		List<FolderResponse> result = null;
+//		this.authFilter = new AuthFilter();
+//		 String loginUser = this.authFilter.getUserNameFromToken(token);
+//		 result = uploadServices.uploadedFiles(uploadFolders.getFolderList(), loginUser);
+//		
+//		return result;
+//	}
+
 	@POST
 	@Path("/upload")
 	@Consumes(APPLICATION_JSON)
-	public List<FolderResponse> upload(@HeaderParam("token") String token, UploadRequest uploadFolders) throws Exception {
-		List<FolderResponse> result = null;
+	public FolderRequest upload(@HeaderParam("token") String token, FolderRequest uploadFolder) throws Exception {
+		FolderRequest result = null;
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
-//		 uploadFolders.setUserName(loginUser);
-		 result = uploadServices.uploadedFiles(uploadFolders.getFolderList(), loginUser);
+		 try {
+			 result = uploadServices.uploadFolder(uploadFolder, loginUser);
+		 }catch (BgipException fe) {
+				buildErrorResponse(Response.Status.PRECONDITION_FAILED, fe.getErrorCode(), fe.getMessage());
+		 }
+		
 		
 		return result;
 	}
-
+	
+	
 	
 	@POST
 	@Path("/newFolder")
 	@Consumes(APPLICATION_JSON)
-	public FolderResponse createNewFolder(@HeaderParam("token") String token, FolderResponse emptyFolder) throws Exception {
-		FolderResponse result = null;
+	public FolderBean createNewFolder(@HeaderParam("token") String token, FolderBean emptyFolder) throws Exception {
+		FolderBean result = null;
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
-		 result = uploadServices.createEmptyFolder(emptyFolder, loginUser);
+		 try {
+			 result = uploadServices.createEmptyFolder(emptyFolder, loginUser);
+		 }catch (BgipException fe) {
+				buildErrorResponse(Response.Status.PRECONDITION_FAILED, fe.getErrorCode(), fe.getMessage());
+		 }
 		return result;
 	}
 	
@@ -64,13 +87,16 @@ public class UploadController extends BaseController {
 	@GET
 	@Path("/folder/{folderId}")
 	@Produces(APPLICATION_JSON)
-	public List<FilesBean> getFilesByFolderId(@HeaderParam("token") String token, @PathParam("folderId") String folderId) throws Exception {
-		System.out.println("folerId : "+folderId);
-		List<FilesBean> result = null;
+	public FolderResponse getFilesByFolderId(@HeaderParam("token") String token, @PathParam("folderId") String folderId) throws Exception {
+		FolderResponse result = null;
+		System.out.println(folderId);
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
-		 result = uploadServices.getFilesByFolderId(folderId, loginUser);
-		
+		 try {
+			 result = uploadServices.getFolderDetails(folderId, loginUser);
+		 }catch (BgipException fe) {
+				buildErrorResponse(Response.Status.PRECONDITION_FAILED, fe.getErrorCode(), fe.getMessage());
+		 }
 		return result;
 	}
 	
@@ -91,8 +117,8 @@ public class UploadController extends BaseController {
 	@GET
 //	@Path("/{userName}")
 	@Produces(APPLICATION_JSON)
-	public UploadRequest getAllFiles(@HeaderParam("token") String token ) throws Exception {
-		UploadRequest result = null;
+	public FolderResponse getAllFiles(@HeaderParam("token") String token ) throws Exception {
+		FolderResponse result = null;
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
 		 result = uploadServices.getAllFiles(loginUser);
