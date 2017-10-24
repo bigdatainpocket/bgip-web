@@ -32,7 +32,7 @@ import com.bgip.service.UserService;
 import com.bgip.utils.BgipUtils;
 
 
-@Path("user")
+@Path("/user")
 @Produces(APPLICATION_JSON)
 public class UserController extends BaseController {
 

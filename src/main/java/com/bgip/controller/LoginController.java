@@ -21,7 +21,7 @@ import com.bgip.service.UserService;
 import com.bgip.utils.BgipUtils;
 
 
-@Path("login")
+@Path("/login")
 @Produces(APPLICATION_JSON)
 public class LoginController extends BaseController {
 
