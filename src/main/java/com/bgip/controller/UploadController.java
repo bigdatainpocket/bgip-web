@@ -6,6 +6,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -37,18 +38,6 @@ public class UploadController extends BaseController {
 	}
 	
 	
-//	@POST
-//	@Path("/upload")
-//	@Consumes(APPLICATION_JSON)
-//	public List<FolderResponse> upload(@HeaderParam("token") String token, UploadRequest uploadFolders) throws Exception {
-//		List<FolderResponse> result = null;
-//		this.authFilter = new AuthFilter();
-//		 String loginUser = this.authFilter.getUserNameFromToken(token);
-//		 result = uploadServices.uploadedFiles(uploadFolders.getFolderList(), loginUser);
-//		
-//		return result;
-//	}
-
 	@POST
 	@Path("/upload")
 	@Consumes(APPLICATION_JSON)
@@ -126,18 +115,23 @@ public class UploadController extends BaseController {
 	}
 	
 	
-	@GET
+	@PUT
 	@Path("/folder/favourite/{folderId}")
 	@Produces(APPLICATION_JSON)
 	public ResponseBean makeFavouriteFolder(@HeaderParam("token") String token, @PathParam("folderId") String folderId ) throws Exception {
 		ResponseBean result = null;
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
-		 result = uploadServices.makeFavouriteFolder(folderId, loginUser);
+		 try {
+			result = uploadServices.makeFavouriteFolder(folderId, loginUser);
+		} catch (BgipException fe) {
+			buildErrorResponse(Response.Status.CONFLICT, fe.getErrorCode(),
+					fe.getMessage());
+		}
 		return result;
 	}
 	
-	@GET
+	@PUT
 	@Path("/file/favourite/{fileId}")
 	@Produces(APPLICATION_JSON)
 	public ResponseBean getFavouriteFileList(@HeaderParam("token") String token, @PathParam("fileId") String fileId ) throws Exception {
@@ -145,15 +139,20 @@ public class UploadController extends BaseController {
 		System.out.println("files List 1: "+System.currentTimeMillis());
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
-		 result = uploadServices.makeFavouriteFile(fileId, loginUser);
+		 try {
+			 result = uploadServices.makeFavouriteFile(fileId, loginUser);
+			} catch (BgipException fe) {
+				buildErrorResponse(Response.Status.CONFLICT, fe.getErrorCode(),
+						fe.getMessage());
+			}
 		return result;
 	}
 	
 	@GET
-	@Path("/folder/favourite/list")
+	@Path("/favorite")
 	@Produces(APPLICATION_JSON)
-	public List<FolderResponse> getFavouriteFolders(@HeaderParam("token") String token ) throws Exception {
-		List<FolderResponse> result = null;
+	public FolderResponse getFavouriteFolders(@HeaderParam("token") String token ) throws Exception {
+		FolderResponse result = null;
 		System.out.println("folder List 1: "+System.currentTimeMillis());
 		this.authFilter = new AuthFilter();
 		 String loginUser = this.authFilter.getUserNameFromToken(token);
