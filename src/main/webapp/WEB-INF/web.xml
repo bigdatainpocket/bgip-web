@@ -24,10 +24,7 @@ and open the template in the editor.
  
       <param-value>com.bgip.application.BgipApplication</param-value>
     </init-param>
-    <init-param>
-            <param-name>listings</param-name>
-            <param-value>true</param-value>
-        </init-param>
+  
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
